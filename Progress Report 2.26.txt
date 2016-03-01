@@ -1,0 +1,19 @@
+Progress Report, Feb. 26, 2016
+
+Kevin Ma, kym5
+Shangyuan (Steven) Niu, sn522
+Ajay Gandhi, aag255
+
+We decided to use the dataset below describing crime rates in the United
+States over the previous 55 years. Additional information includes breakdown by type of crime, breakdown by state and inmates per state.
+
+We have several ideas and would like your input:
+
+* Using national crime data, create two line plots with a shared x-axis representing the year. One line plot will depict the trend of crime rates over the last 55 years, which one line for every category of crime. The second line plot will depict the increase in US population over the same time period.
+* Using crime data by state, create a map of the US delineating each state. Each state will be filled with a colored gradient from left to right. If the rate of crime over the last 55 years increased in that state, the gradient will get darker from left to right. If the rate of crime decreased, the gradient will get lighter from left to right.
+* Using crime data by state, create choropleths displaying instances of a type of crime per 100,000 people who live in a state. Compare different types of crime across maps.
+
+We think we can choose 2 of these 3 ideas to create a coherent visualization of the data, since any pair from this set has some related data. Would you be able to provide some insight on which of these two would be the most interesting together, or any ways to make the visualization more unique.
+
+Dataset: http://www.disastercenter.com/crime/uscrime.htm
+
