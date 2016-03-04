@@ -1,0 +1,108 @@
+<html>
+<head>
+  <title></title>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background-color: #f2f2f2;
+  }
+  #container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 20px;
+    height: auto;
+    overflow: auto;
+    background-color: #fff;
+    box-shadow: 0 0 5px 0px #ccc;
+    -moz-box-shadow: 0 0 5px 0px #ccc;
+    -webkit-box-shadow: 0 0 5px 0px #ccc;
+  }
+
+  svg {
+    border: 1px solid #bbb;
+  }
+  .state-boundary {
+    fill: none;
+    stroke: #fff;
+  }
+  </style>
+  </head>
+<body>
+  <div id="container">
+    <svg id="gradientMap" width="900" height="500"></svg>
+  </div>
+
+  <script>
+  var svg    = d3.select('svg#gradientMap'),
+      width  = svg.attr('width'),
+      height = svg.attr('height');
+
+  // Map
+  var projection = d3.geo.albersUsa()
+    .scale(1000)
+    .translate([width / 2, height / 2]);
+
+  var path = d3.geo.path().projection(projection);
+  
+  var counties, states;
+
+  var countyPaths;
+  d3.json('us.json', function(error, shapes) {
+  
+    // us.json (source: Mike Bostock) is in GeoJSON format.
+    // Let's convert it to TopoJSON.
+    states = topojson.feature(shapes, shapes.objects.states).features;
+  
+    // I've modified this from the in-class version, by adding a
+    //  separate variable for the group containing counties.
+    var countyGroup = svg.append('g');
+  
+    // This is an important d3 idiom. Previously we were creating SVG
+    //  elements, then binding data objects to those SVG elements.
+    // But we can also add data objects BEFORE creating the SVG elements
+    //  using the .enter() selection. This will reuse any existing
+    //  elements, and allow us to add any new ones that we need.
+    var statePaths = svg.append('g');
+    statePaths.selectAll('path').data(states).enter()
+    .append('path').attr('d', path)
+    .style('fill', 'green').style('stroke', '#ccc');
+
+    svg.selectAll('path').each(function (d, i) {
+      var curr_path = d3.select(this);
+      var segments = this.pathSegList;
+      var min_x = width * 2,
+          max_x = 0;
+      for (var c = 0; c < segments.numberOfItems; c++) {
+        var x = parseFloat(segments.getItem(c).x);
+        if (x < min_x) min_x = x;
+        if (x > max_x) max_x = x;
+      }
+
+      svg.append('linearGradient')
+        .attr('id', 'linearGradient' + i)
+        .attr('gradientUnits', 'userSpaceOnUse')
+        .attr('x1', min_x).attr('y1', 0)
+        .attr('x2', max_x).attr('y2', 0)
+        .selectAll('stop')
+        .data([
+          { offset: '0%',   color: '#000' },
+          { offset: '100%', color: '#f00' }
+        ])
+        .enter().append('stop')
+        .attr('offset', function(d) { return d.offset; })
+        .attr('stop-color', function(d) { return d.color; });
+
+      d3.select(this).style('fill', 'url(#linearGradient' + i + ')');
+    });
+  });
+  </script>
+</body>
+</html>
