@@ -26,7 +26,7 @@ state_abbrs.forEach(function (state) {
         // Heading rows
         if (cells.first().text().trim() === 'Year') {
           headings = cells.map(function () {
-            return $(this).text();
+            return $(this).text().trim();
           }).get();
 
           return;
@@ -36,7 +36,8 @@ state_abbrs.forEach(function (state) {
         var year = cells.first().text().trim();
         json_data[state][year] = {};
         for (var i = 1; i < headings.length; i++) {
-          json_data[state][year][headings[i]] = parseInt(cells.eq(i).text().trim().replace(',', ''));
+          json_data[state][year][headings[i]] = cells.eq(i).text().trim().replace(/,/g, '');
+          if (i == 1 && json_data[state][year][headings[i]] < 10000) console.log(headings[i], state, year, json_data[state][year][headings[i]]);
         }
       });
 
