@@ -16,6 +16,7 @@ state_abbrs.forEach(function (state) {
     .then(function (data) {
       remaining--;
 
+      if (state === 'kn') state = 'ks';
       json_data[state] = {};
 
       $ = cheerio.load(data);
@@ -49,7 +50,7 @@ state_abbrs.forEach(function (state) {
 
 function generate_url(a) {
   // The filename and data are different for these states
-  var exceptions = ['nd', 'nm', 'ok', 'nj', 'ne', 'ms', 'nc', 'ks', 'mt', 'mo'];
+  var exceptions = ['nd', 'nm', 'ok', 'nj', 'ne', 'ms', 'nc', 'mt', 'mo'];
 
   return (exceptions.indexOf(a) >= 0)
     ? 'http://www.disastercenter.com/crime/' + a + 'crimn.htm'
