@@ -10,255 +10,209 @@
   <script src="//d3js.org/topojson.v1.min.js"></script>
 	<style>
 		body { font-family: "Source Sans Pro"; 
-			margin: 50px; }
-			 svg { border: solid black 1px; }
-			.axis path,
-			.axis line {
-			    fill: none;
-			    stroke: black;
-			    shape-rendering: crispEdges;
+			margin: 50px; 
 			}
-			.axis { font-size: .2em;
-			}
-			.rect-anchor-center {
-				  /* 
-				  Set position anchor to (center, center).
-				  */
-				transform: translate(-50%, -50%);
-			}
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: black;
+			shape-rendering: crispEdges;
+		}
+		.axis { 
+			font-size: .7em;
+		}
+		text {
+			font-size: 0.7rem;
+		}
+		.title {
+			font-size: 1rem;
+		}
 	</style>
 </head>
 <body>
-<h2>Project 1 </h2>
-	<div class="vis">
-	</div>
-	<div id="map">
-	</div>
+	<h2>Project 1 </h2>
+	<p>Notes: variable crimeType is for x-axis measure, crimeType2 is for size of circle, feel free to change these up.
+		<div class="vis">
+		</div>
+		<div id="map">
+		</div>
 
-<script>
-//return a scatterplot
-//x-axis is violent crimes/100,000 people in the population for year of 2013
-//y-axis is unemployment rate 
-//size of data point is ???
+	<script>
+	//specify crime typs
+	var possibleCrimes = ["Burglary", "Murder", "Property", "Rape", "Robbery", "Theft", "Violent", "assault"];
+	var crimeType = "Burglary";
+	var crimeType2 = "Murder";
 
+	d3.json("data.json", function(error, data){
+		visualize(data);
+	});
 
-d3.json("data.json", function(error, data){
-	visualize(data);
-});
+	function visualize(data){
+		//everything is nested in the callback function
+		var crimeData = d3.entries(data);
+		//combine datasets data.json and test.json
+		d3.json("poverty.json", function(error, d){
+			var povertyData = d.unemployment;
+			var completeData = [], obj_poverty_processed = [];
+			for (var i in crimeData) {
+	    		var obj = {key: crimeData[i].key, value: crimeData[i].value};
+		    	for (var j in povertyData) {
+		        	if ( abbrState( crimeData[i].key ,"name") == povertyData[j].state) {
 
-function abbrState(input, to){
-    
-    var states = [
-        ['Arizona', 'AZ'],
-        ['Alabama', 'AL'],
-        ['Alaska', 'AK'],
-        ['Arizona', 'AZ'],
-        ['Arkansas', 'AR'],
-        ['California', 'CA'],
-        ['Colorado', 'CO'],
-        ['Connecticut', 'CT'],
-        ['Delaware', 'DE'],
-        ['Florida', 'FL'],
-        ['Georgia', 'GA'],
-        ['Hawaii', 'HI'],
-        ['Idaho', 'ID'],
-        ['Illinois', 'IL'],
-        ['Indiana', 'IN'],
-        ['Iowa', 'IA'],
-        ['Kansas', 'KS'],
-        ['Kentucky', 'KY'],
-        ['Kentucky', 'KY'],
-        ['Louisiana', 'LA'],
-        ['Maine', 'ME'],
-        ['Maryland', 'MD'],
-        ['Massachusetts', 'MA'],
-        ['Michigan', 'MI'],
-        ['Minnesota', 'MN'],
-        ['Mississippi', 'MS'],
-        ['Missouri', 'MO'],
-        ['Montana', 'MT'],
-        ['Nebraska', 'NE'],
-        ['Nevada', 'NV'],
-        ['New Hampshire', 'NH'],
-        ['New Jersey', 'NJ'],
-        ['New Mexico', 'NM'],
-        ['New York', 'NY'],
-        ['North Carolina', 'NC'],
-        ['North Dakota', 'ND'],
-        ['Ohio', 'OH'],
-        ['Oklahoma', 'OK'],
-        ['Oregon', 'OR'],
-        ['Pennsylvania', 'PA'],
-        ['Rhode Island', 'RI'],
-        ['South Carolina', 'SC'],
-        ['South Dakota', 'SD'],
-        ['Tennessee', 'TN'],
-        ['Texas', 'TX'],
-        ['Utah', 'UT'],
-        ['Vermont', 'VT'],
-        ['Virginia', 'VA'],
-        ['Washington', 'WA'],
-        ['West Virginia', 'WV'],
-        ['Wisconsin', 'WI'],
-        ['Wyoming', 'WY'],
-    ];
+		            	obj.rate = povertyData[j].rate;
+		            	if (povertyData[j].state == "Florida"){
+		        			console.log(povertyData[j].rate);
+		        		}
+		            	obj_poverty_processed[povertyData[j].state] = true;
+		        	}
+		  		}
+			    obj.rate = obj.rate || 'no';
+			    completeData.push(obj);
+			}
+		console.log(completeData);
+		
+		//svg
+		var width=1000;
+		var height=700;
+		var padding =100;
+		var svg = d3.select(".vis")
+		.append("svg")
+		.attr("width",width)
+		.attr("height",height);
 
-    if (to == 'abbr'){
-        input = input.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-        for(i = 0; i < states.length; i++){
-            if(states[i][0] == input){
-                return(states[i][1]);
-            }
-        }    
-    } else if (to == 'name'){
-        input = input.toUpperCase();
-        for(i = 0; i < states.length; i++){
-            if(states[i][1] == input){
-                return(states[i][0]);
-            }
-        }    
-    }
-}
+		//max/min of crimeType, used for scaling x-axis
+		var max = d3.max(completeData, function(el){
+			return (el.value[2013][crimeType] * 100000) / el.value[2013].Population
+		});
+		var min = d3.min(completeData, function(el){
+			return (el.value[2013][crimeType] * 100000) / el.value[2013].Population
+		});
+		//maximum of crimeType2, used for scaling circles
+		var max2 = d3.max(completeData, function(el){
+			return (el.value[2013][crimeType2] * 100000) / el.value[2013].Population
+		});
+		console.log(max2);
 
 
+		//scales
+		var xScale = d3.scale.linear().domain([min, max]).range([padding, width - padding]);
+		var yScale = d3.scale.linear().domain([5, 26]).range([height - padding, padding]);
+		var circleScale = d3.scale.sqrt().domain([0, max2]).range([0,30]);
+		var xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.format("d"));
+		var yAxis = d3.svg.axis().scale(yScale).orient("left");
+		var colorScale = d3.scale.linear().domain([0,30]).range(["#ffffff","#ff12a5"]);
+
+		//axis
+		svg.append("g").attr("transform", "translate(0," + (height - padding) + ")").attr("class", "axis")
+		.call(xAxis);
+		svg.append("g").attr("transform", "translate(" + padding + ",0)").attr("class", "axis")
+		.call(yAxis);
 
 
+		//title
+		svg.append("text").text("2013 " + crimeType + " count per 100,000 of State population, compared to Poverty Rate (%)").attr("x",width/2).attr("y",30).attr("text-anchor","middle").attr("class","title");
 
-function visualize(data){
+		//axis
+		svg.append("text").text(crimeType + " per 100,000 of population").attr("x",width/2).attr("y",height - padding/6).attr("text-anchor","middle");
+		svg.append("text").text("Poverty Rate").attr("x",padding/2).attr("y",height/2).attr("text-anchor","middle");
 
+		var dataPoints = 
+		svg.selectAll("g")
+		.data(completeData)
+		.enter()
+		.append("g")
+		.attr("transform", function(d, i){
+			return "translate(" + xScale( (d.value[2013][crimeType] * 100000 )/  d.value[2013].Population ) + "," + 
+				yScale(d.rate)		
+				 + ")";
+		});
 
-	var crimeData = d3.entries(data);
+		dataPoints.append("circle")
+		.attr("r", function(d) {return circleScale( (d.value[2013][crimeType2] * 100000 )/  d.value[2013].Population ) })
+		.attr("fill", "rgba(127, 127, 255, 0.3)");
 
-	//combine datasets data.json and test.json
-	d3.json("test.json", function(error, unData){
-		var unemploymentData = unData.unemployment;
-		console.log( abbrState(crimeData[1].key, 'name') == unemploymentData[30].state );
-	var completeData = [], obj_unemployed_processed = [];
-	for (var i in crimeData) {
-    var obj = {key: crimeData[i].key, value: crimeData[i].value};
-	    for (var j in unemploymentData) {
-	        if ( abbrState( crimeData[i].key ,"name") == unemploymentData[j].state) {
-	            obj.rate = unemploymentData[j].rate;
-	            obj_unemployed_processed[unemploymentData[j].state] = true;
-	        }
-	    }
-	    obj.rate = obj.rate || 'no';
-	    completeData.push(obj);
+		dataPoints.append("text")
+		.text( function(d) {return abbrState(d.key, 'name') });
+
+		});
 	}
-	console.log(completeData);
-	
-	var width=900;
-	var height=600;
-	var padding =50;
-	var svg = d3.select(".vis")
-	.append("svg")
-	.attr("width",width)
-	.attr("height",height);
 
+	//name to abbrieviation, or abbrieviation to name
+	function abbrState(input, to){
+	    
+	    var states = [
+	        ['Arizona', 'AZ'],
+	        ['Alabama', 'AL'],
+	        ['Alaska', 'AK'],
+	        ['Arizona', 'AZ'],
+	        ['Arkansas', 'AR'],
+	        ['California', 'CA'],
+	        ['Colorado', 'CO'],
+	        ['Connecticut', 'CT'],
+	        ['Delaware', 'DE'],
+	        ['Florida', 'FL'],
+	        ['Georgia', 'GA'],
+	        ['Hawaii', 'HI'],
+	        ['Idaho', 'ID'],
+	        ['Illinois', 'IL'],
+	        ['Indiana', 'IN'],
+	        ['Iowa', 'IA'],
+	        ['Kansas', 'KS'],
+	        ['Kentucky', 'KY'],
+	        ['Kentucky', 'KY'],
+	        ['Louisiana', 'LA'],
+	        ['Maine', 'ME'],
+	        ['Maryland', 'MD'],
+	        ['Massachusetts', 'MA'],
+	        ['Michigan', 'MI'],
+	        ['Minnesota', 'MN'],
+	        ['Mississippi', 'MS'],
+	        ['Missouri', 'MO'],
+	        ['Montana', 'MT'],
+	        ['Nebraska', 'NE'],
+	        ['Nevada', 'NV'],
+	        ['New Hampshire', 'NH'],
+	        ['New Jersey', 'NJ'],
+	        ['New Mexico', 'NM'],
+	        ['New York', 'NY'],
+	        ['North Carolina', 'NC'],
+	        ['North Dakota', 'ND'],
+	        ['Ohio', 'OH'],
+	        ['Oklahoma', 'OK'],
+	        ['Oregon', 'OR'],
+	        ['Pennsylvania', 'PA'],
+	        ['Rhode Island', 'RI'],
+	        ['South Carolina', 'SC'],
+	        ['South Dakota', 'SD'],
+	        ['Tennessee', 'TN'],
+	        ['Texas', 'TX'],
+	        ['Utah', 'UT'],
+	        ['Vermont', 'VT'],
+	        ['Virginia', 'VA'],
+	        ['Washington', 'WA'],
+	        ['West Virginia', 'WV'],
+	        ['Wisconsin', 'WI'],
+	        ['Wyoming', 'WY'],
+	    ];
 
-	//scales
-	var xScale = d3.scale.linear().domain([0, 700]).range([padding, width - padding]);
-	var yScale = d3.scale.linear().domain([0, 30]).range([height - padding, padding]);
-	var circleScale = d3.scale.sqrt().domain([0, 500]).range([0,100]);
-	var xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.format("d"));
-	var yAxis = d3.svg.axis().scale(yScale).orient("left");
-	var colorScale = d3.scale.linear().domain([0,30]).range(["#ffffff","#ff12a5"]);
+	    if (to == 'abbr'){
+	        input = input.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+	        for(i = 0; i < states.length; i++){
+	            if(states[i][0] == input){
+	                return(states[i][1]);
+	            }
+	        }    
+	    } else if (to == 'name'){
+	        input = input.toUpperCase();
+	        for(i = 0; i < states.length; i++){
+	            if(states[i][1] == input){
+	                return(states[i][0]);
+	            }
+	        }    
+	    }
+	}
 
-	//axis
-	svg.append("g").attr("transform", "translate(0," + (height - padding) + ")").attr("class", "axis")
-	.call(xAxis);
-	svg.append("g").attr("transform", "translate(" + padding + ",0)").attr("class", "axis")
-	.call(yAxis);
-
-	var dataPoints = 
-	svg.selectAll("g")
-	.data(completeData)
-	.enter()
-	.append("g")
-	.attr("transform", function(d, i){
-		return "translate(" + xScale( (d.value[2013].Violent * 100000 )/  d.value[2013].Population ) + "," + 
-			yScale(d.rate)		
-			 + ")";
-	});
-
-	dataPoints.append("circle")
-	.attr("r", function(d) {return circleScale( (d.value[2013].Murder * 100000 )/  d.value[2013].Population ) })
-	.attr("fill", "#54D6C1");
-
-	dataPoints.append("text")
-	.text( function(d) {return abbrState(d.key, 'name') });
-
-	});
-}
-
-function hereDoc(f) {
-  return f.toString().
-      replace(/^[^\/]+\/\*!?/, '').
-      replace(/\*\/[^\/]+$/, '');
-}
-var stateUnemploy = hereDoc(function() {/*!Louisiana 23.10
-Mississippi	22.10
-Arizona	21.20
-WestVirginia 20.60
-Kentucky 20.00
-NewMexico 20.00
-Arkansas 18.40
-Alabama 17.80
-Tennessee 17.30
-Oklahoma 17.30
-NorthCarolina 17.10
-Nevada 17.00
-Georgia	16.80
-Florida	16.70
-SouthCarolina 16.50
-Texas 16.40
-California 15.80
-Ohio 15.60
-Michigan 14.80
-Maine 14.60
-Indiana 14.60
-Oregon 14.40
-NewYork 14.00
-Illinois 13.70
-Massachusetts 13.60
-SouthDakota 12.80
-Pennsylvania 12.50
-Idaho 12.40
-Colorado 12.30
-Kansas 12.10
-Montana 12.00
-Washington 12.00
-Alaska 11.90
-Nebraska 11.80
-RhodeIsland 11.30
-NewJersey 11.30
-Delaware 11.00
-Wisconsin 10.90
-Hawaii 10.80
-Missouri 10.40
-Iowa 10.30
-Virginia 10.20
-Utah 10.20
-Maryland 9.90
-Wyoming	9.70
-NorthDakota 9.70
-Vermont	9.30 
-Connecticut	8.60
-Minnesoda 8.30
-NewHampshire 7.20
-*/});
-
-stateUnemploy = stateUnemploy.replace( /\n/g, " " ).split( " " );
-
-var outputStr ="";
-for (var i =0; i<stateUnemploy.length;i=i+2){
-	outputStr += "{\"state\":\"" + stateUnemploy[i] + "\" , \"rate\":\"" + stateUnemploy[i+1] + "\"} , "
-
-}
-console.log(outputStr);
-
-
-</script>
+	</script>
 
 
 </body>
