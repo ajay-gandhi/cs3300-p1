@@ -9,7 +9,7 @@ var state_abbrs = ['al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', '
 var remaining = state_abbrs.length;
 
 // Hardcode headings :(
-var headings = ['Population', 'Index', 'Violent', 'Property', 'Murder', 'Forcible Rape', 'Robbery', 'Aggravated Assault', 'Burglary', 'Larceny - Theft', 'Vehicle Theft'];
+var headings = ['Year', 'Population', 'Index', 'Violent', 'Property', 'Murder', 'Forcible Rape', 'Robbery', 'Aggravated Assault', 'Burglary', 'Larceny - Theft', 'Vehicle Theft'];
 
 state_abbrs.forEach(function (state) {
   rp(generate_url(state))
@@ -30,7 +30,7 @@ state_abbrs.forEach(function (state) {
         var year = cells.first().text().trim();
         json_data[state][year] = {};
         for (var i = 1; i < headings.length; i++) {
-          json_data[state][year][headings[i]] = cells.eq(i).text().trim().replace(/,/g, '');
+          json_data[state][year][headings[i]] = parseInt(cells.eq(i).text().trim().replace(/,/g, ''));
         }
       });
 
