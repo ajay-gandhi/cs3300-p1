@@ -8,36 +8,29 @@ var json_data = {};
 var state_abbrs = ['al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', 'hi', 'id', 'il', 'in', 'ia', 'kn', 'ky', 'la', 'me', 'md', 'ma', 'mi', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 'va', 'wa', 'wv', 'wi', 'wy'];
 var remaining = state_abbrs.length;
 
+// Hardcode headings :(
+var headings = ['Population', 'Index', 'Violent', 'Property', 'Murder', 'Forcible Rape', 'Robbery', 'Aggravated Assault', 'Burglary', 'Larceny - Theft', 'Vehicle Theft'];
+
 state_abbrs.forEach(function (state) {
   rp(generate_url(state))
     .then(function (data) {
       remaining--;
 
-      var headings = [];
       json_data[state] = {};
 
       $ = cheerio.load(data);
       $('table table tr:nth-child(2) table tr').each(function () {
         var cells = $(this).find('td');
 
-        // Ignore empty rows
+        // Ignore empty rows, heading rows
         if (cells.first().text().trim() === '')     return;
-
-        // Heading rows
-        if (cells.first().text().trim() === 'Year') {
-          headings = cells.map(function () {
-            return $(this).text().trim();
-          }).get();
-
-          return;
-        }
+        if (cells.first().text().trim() === 'Year') return;
 
         // Create datapoint
         var year = cells.first().text().trim();
         json_data[state][year] = {};
         for (var i = 1; i < headings.length; i++) {
           json_data[state][year][headings[i]] = cells.eq(i).text().trim().replace(/,/g, '');
-          if (i == 1 && json_data[state][year][headings[i]] < 10000) console.log(headings[i], state, year, json_data[state][year][headings[i]]);
         }
       });
 
@@ -61,4 +54,8 @@ function generate_url(a) {
   return (exceptions.indexOf(a) >= 0)
     ? 'http://www.disastercenter.com/crime/' + a + 'crimn.htm'
     : 'http://www.disastercenter.com/crime/' + a + 'crime.htm';
+}
+
+function cap_first (str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
