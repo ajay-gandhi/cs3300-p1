@@ -35,7 +35,10 @@ described yearly crime rates, broken down into the following categories:
 In addition to the above categories, the website provided yearly population and
 a "crime index", equal to the total property and violent crimes per year. Using
 the population and crime totals, we were able to compute per capita and
-per-hundred-thousand crime rates.
+per-hundred-thousand crime rates. Although these pages gave us yearly crime
+data, we decided to focus on the most recent and complete year, which was 2013.
+This would allow us to narrow in and observe trends without getting lost in an
+overwhelming haystack of data.
 
 ## worldatlas
 
