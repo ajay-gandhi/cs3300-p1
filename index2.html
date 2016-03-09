@@ -63,7 +63,7 @@
 			<h4>Forcible Rape</h4>
 			<div id="map5"></div>
 		</div>
-	<div class = "maplinewrap">
+
 		<div class="mapContainer">
 			<h4>Robbery</h4>
 			<div id="map6"></div>
@@ -89,12 +89,12 @@
 
 	<script>
 
-	var width = 320,
-	height = 200;
+	var width = 240,
+	height = 150;
 
 
 	var projection = d3.geo.albersUsa()
-	.scale(320)
+	.scale(240)
 	.translate([width / 2, height / 2]);
 
 	var path = d3.geo.path()
@@ -123,7 +123,7 @@
       var max = Math.max.apply(Math, valueArray);
       var min = Math.min.apply(Math, valueArray);
 
-      var crimeScale = d3.scale.linear().domain([min, max]).range(["#ffe6e6", "#4d0000"]);
+      var crimeScale = d3.scale.linear().domain([min, max]).range(["white", "black"]);
 
       statePaths.selectAll('path').data(states).enter()
       .append('path').attr('d', path).attr("id", function(state) {return state.id})
@@ -154,7 +154,7 @@
       var max = Math.max.apply(Math, valueArray);
       var min = Math.min.apply(Math, valueArray);
 
-      var crimeScale = d3.scale.linear().domain([min, max]).range(["#ffe6e6", "#4d0000"]);
+      var crimeScale = d3.scale.linear().domain([min, max]).range(["#e6ffff", "#004d4d"]);
 
       statePaths.selectAll('path').data(states).enter()
       .append('path').attr('d', path).attr("id", function(state) {return state.id})
@@ -231,6 +231,37 @@
 
   });
 
+//Map for Forcible Rape
+var svg5 = d3.select("#map5").append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+  d3.json("data.json", function(error, data){
+
+  	var statePaths = svg5.append('g');
+      var valueArray = []; //An array to store values to fine the min max in order to set the color scale
+      for (var i in data){
+      	valueArray.push((data[i]["2013"]["Forcible Rape"]*100000.0)/data[i]["2013"]["Population"]);         
+      }
+      var max = Math.max.apply(Math, valueArray);
+      var min = Math.min.apply(Math, valueArray);
+
+      var crimeScale = d3.scale.linear().domain([min, max]).range(["#fff6e6", "#4d3200"]);
+
+      statePaths.selectAll('path').data(states).enter()
+      .append('path').attr('d', path).attr("id", function(state) {return state.id})
+      .style('fill', function(state){
+
+      	if (typeof data[stateid[state.id]] != 'undefined' && typeof data[stateid[state.id]]["2013"] != 'undefined'){
+      		return crimeScale(data[stateid[state.id]]["2013"]["Forcible Rape"]*100000.0/data[stateid[state.id]]["2013"]["Population"])}
+
+      	})
+
+      .style('stroke', '#ccc');
+
+  });
+
+
  //Map for Robbery
  var svg6 = d3.select("#map6").append("svg")
  .attr("width", width)
@@ -247,7 +278,7 @@
       }
       var max = Math.max.apply(Math, valueArray);
       var min = Math.min.apply(Math, valueArray);
-      var crimeScale = d3.scale.linear().domain([min, max]).range(["#ffe6e6", "#4d0000"]);
+      var crimeScale = d3.scale.linear().domain([min, max]).range(["#ffffe6", "#4d4d00"]);
 
       statePaths.selectAll('path').data(states).enter()
       .append('path').attr('d', path).attr("id", function(state) {return state.id})
@@ -262,8 +293,37 @@
 
   });
 
+//Map for Aggravated Assault
+var svg7 = d3.select("#map7").append("svg")
+  .attr("width", width)
+  .attr("height", height);
 
-//Map for Robbery
+  d3.json("data.json", function(error, data){
+
+  	var statePaths = svg7.append('g');
+      var valueArray = []; //An array to store values to fine the min max in order to set the color scale
+      for (var i in data){
+      	valueArray.push((data[i]["2013"]["Aggravated Assault"]*100000.0)/data[i]["2013"]["Population"]);         
+      }
+      var max = Math.max.apply(Math, valueArray);
+      var min = Math.min.apply(Math, valueArray);
+
+      var crimeScale = d3.scale.linear().domain([min, max]).range(["#e6ffe6", "#004d00"]);
+
+      statePaths.selectAll('path').data(states).enter()
+      .append('path').attr('d', path).attr("id", function(state) {return state.id})
+      .style('fill', function(state){
+
+      	if (typeof data[stateid[state.id]] != 'undefined' && typeof data[stateid[state.id]]["2013"] != 'undefined'){
+      		return crimeScale(data[stateid[state.id]]["2013"]["Aggravated Assault"]*100000.0/data[stateid[state.id]]["2013"]["Population"])}
+
+      	})
+
+      .style('stroke', '#ccc');
+
+  });
+
+//Map for Burglary
 var svg8 = d3.select("#map8").append("svg")
 .attr("width", width)
 .attr("height", height);
@@ -279,7 +339,7 @@ d3.json("data.json", function(error, data){
       }
       var max = Math.max.apply(Math, valueArray);
       var min = Math.min.apply(Math, valueArray);
-      var crimeScale = d3.scale.linear().domain([min, max]).range(["#ffe6e6", "#4d0000"]);
+      var crimeScale = d3.scale.linear().domain([min, max]).range(["#e6faff", "#003d4d"]);
 
       statePaths.selectAll('path').data(states).enter()
       .append('path').attr('d', path).attr("id", function(state) {return state.id})
@@ -294,6 +354,65 @@ d3.json("data.json", function(error, data){
 
   });
 
+//Map for Larceny Theft
+var svg9 = d3.select("#map9").append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+  d3.json("data.json", function(error, data){
+
+  	var statePaths = svg9.append('g');
+      var valueArray = []; //An array to store values to fine the min max in order to set the color scale
+      for (var i in data){
+      	valueArray.push((data[i]["2013"]["Larceny - Theft"]*100000.0)/data[i]["2013"]["Population"]);         
+      }
+      var max = Math.max.apply(Math, valueArray);
+      var min = Math.min.apply(Math, valueArray);
+
+      var crimeScale = d3.scale.linear().domain([min, max]).range(["#e6e6ff", "#00004d"]);
+
+      statePaths.selectAll('path').data(states).enter()
+      .append('path').attr('d', path).attr("id", function(state) {return state.id})
+      .style('fill', function(state){
+
+      	if (typeof data[stateid[state.id]] != 'undefined' && typeof data[stateid[state.id]]["2013"] != 'undefined'){
+      		return crimeScale(data[stateid[state.id]]["2013"]["Larceny - Theft"]*100000.0/data[stateid[state.id]]["2013"]["Population"])}
+
+      	})
+
+      .style('stroke', '#ccc');
+
+  });
+
+//Map for Larceny Theft
+var svg10 = d3.select("#map10").append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+  d3.json("data.json", function(error, data){
+
+  	var statePaths = svg10.append('g');
+      var valueArray = []; //An array to store values to fine the min max in order to set the color scale
+      for (var i in data){
+      	valueArray.push((data[i]["2013"]["Vehicle Theft"]*100000.0)/data[i]["2013"]["Population"]);         
+      }
+      var max = Math.max.apply(Math, valueArray);
+      var min = Math.min.apply(Math, valueArray);
+
+      var crimeScale = d3.scale.linear().domain([min, max]).range(["#ffe6ff", "#4d004d"]);
+
+      statePaths.selectAll('path').data(states).enter()
+      .append('path').attr('d', path).attr("id", function(state) {return state.id})
+      .style('fill', function(state){
+
+      	if (typeof data[stateid[state.id]] != 'undefined' && typeof data[stateid[state.id]]["2013"] != 'undefined'){
+      		return crimeScale(data[stateid[state.id]]["2013"]["Vehicle Theft"]*100000.0/data[stateid[state.id]]["2013"]["Population"])}
+
+      	})
+
+      .style('stroke', '#ccc');
+
+  });
 
 });
 
