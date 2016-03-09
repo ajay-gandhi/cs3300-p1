@@ -22,7 +22,7 @@
 			font-size: .7em;
 		}
 		text {
-			font-size: 0.7rem;
+			font-size: 0.5rem;
 		}
 		.title {
 			font-size: 1rem;
@@ -34,20 +34,27 @@
 	<p>Notes: variable crimeType is for x-axis measure, crimeType2 is for size of circle, feel free to change these up.
 		<div class="vis">
 		</div>
+		<div class="vis2">
+		</div>
+		<div class="vis3">
+		</div>
 		<div id="map">
 		</div>
 
 	<script>
 	//specify crime typs
-	var possibleCrimes = ["Index", "Burglary", "Murder", "Property", "Rape", "Robbery", "Theft", "Violent", "assault"];
-	var crimeType = "Property";
-	var crimeType2 = "Murder";
+	// var possibleCrimes = ["Index", "Aggravated Assault", "Burglary", "Forcible Rape", "Murder", "Property", "
+	// Forcible Rape", "Robbery", "Larceny - Theft", "Vehicle Theft", "Violent"];
+	var crimeType = "Burglary";
+	var crimeType2 = "Population";
 
 	d3.json("data.json", function(error, data){
-		visualize(data);
+		visualize(data, crimeType, 1200, 700);
+		visualize(data, "Violent", 600, 700);
+		visualize(data, "Burglary", 1200, 700);
 	});
 
-	function visualize(data){
+	function visualize(data, crimeType, svgWidth, svgHeight){
 		//everything is nested in the callback function
 		var crimeData = d3.entries(data);
 		//combine datasets data.json and test.json
@@ -60,7 +67,7 @@
 		        	if ( abbrState( crimeData[i].key ,"name") == povertyData[j].state) {
 
 		            	obj.rate = povertyData[j].rate;
-		            	if (povertyData[j].state == "New York"){
+		            	if (povertyData[j].state == "Louisiana"){
 		        			console.log(povertyData[j].rate);
 		        		}
 		            	obj_poverty_processed[povertyData[j].state] = true;
@@ -72,8 +79,8 @@
 		console.log(completeData);
 		
 		//svg
-		var width=1000;
-		var height=700;
+		var width=svgWidth;
+		var height=svgHeight;
 		var padding =100;
 		var svg = d3.select(".vis")
 		.append("svg")
@@ -89,26 +96,23 @@
 		});
 		//maximum of crimeType2, used for scaling circles
 		var max2 = d3.max(completeData, function(el){
+			if (crimeType2=="Population"){
+				return el.value[2013][crimeType2];
+			}
 			return (el.value[2013][crimeType2] * 100000) / el.value[2013].Population
 		});
 		console.log(max2);
 
 
 		//scales
-		var xScale = d3.scale.linear().domain([min, max]).range([padding, width - padding]);
-		var yScale = d3.scale.linear().domain([0, 26]).range([height - padding, padding]);
+		var xScale = d3.scale.linear().domain([0, max]).range([padding, width - padding]);
+		var yScale = d3.scale.linear().domain([5, 24]).range([height - padding, padding]);
 		var circleScale = d3.scale.sqrt().domain([0, max2]).range([0,30]);
 		var xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.format("d"));
 		var yAxis = d3.svg.axis().scale(yScale).orient("left");
 		var colorScale = d3.scale.linear().domain([0,30]).range(["#ffffff","#ff12a5"]);
-
 		//axis
-		svg.append("g").attr("transform", "translate(0," + (height - padding) + ")").attr("class", "axis")
-		.call(xAxis);
-		svg.append("g").attr("transform", "translate(" + padding + ",0)").attr("class", "axis")
-		.call(yAxis);
-
-
+		
 		//title
 		svg.append("text").text("2013 " + crimeType + " count per 100,000 of State population, compared to Poverty Rate (%)").attr("x",width/2).attr("y",30).attr("text-anchor","middle").attr("class","title");
 		svg.append("text").text("Circle size currently showing: " + crimeType2).attr("x",width/2).attr("y",60).attr("text-anchor","middle");
@@ -117,23 +121,44 @@
 		svg.append("text").text(crimeType + " per 100,000 of population").attr("x",width/2).attr("y",height - padding/2).attr("text-anchor","middle");
 		svg.append("text").text("Poverty Rate").attr("x",padding/2).attr("y",height/2).attr("text-anchor","middle");
 
+		for (var i in completeData){
+			console.log(i["key"]);
+		}
+		console.log(completeData[5]);
+		console.log(completeData[3].value[2013][crimeType]);
+
+
 		var dataPoints = 
 		svg.selectAll("g")
 		.data(completeData)
 		.enter()
 		.append("g")
 		.attr("transform", function(d, i){
-			return "translate(" + xScale( (d.value[2013][crimeType] * 100000 )/  d.value[2013].Population ) + "," + 
+			// if (d["key"] == "hi") {
+			// 	console.log("me!" );
+			// }
+			return "translate(" + xScale( (d.value[2013][crimeType] * 100000 )/ d.value[2013].Population ) + "," + 
 				yScale(d.rate)		
 				 + ")";
 		});
 
 		dataPoints.append("circle")
-		.attr("r", function(d) {return circleScale( (d.value[2013][crimeType2] * 100000 )/  d.value[2013].Population ) })
+		.attr("r", function(d) {
+			if (crimeType2=="Population"){
+				return circleScale(d.value[2013][crimeType2]);
+			}
+			return circleScale( (d.value[2013][crimeType2] * 100000 )/ d.value[2013].Population ) })
 		.attr("fill", "rgba(127, 127, 255, 0.3)");
 
 		dataPoints.append("text")
 		.text( function(d) {return abbrState(d.key, 'name') });
+
+		//axis
+		svg.append("g").attr("transform", "translate(0," + (height - padding) + ")").attr("class", "axis")
+		.call(xAxis);
+		svg.append("g").attr("transform", "translate(" + padding + ",0)").attr("class", "axis")
+		.call(yAxis);
+
 
 		});
 	}
@@ -159,7 +184,6 @@
 	        ['Indiana', 'IN'],
 	        ['Iowa', 'IA'],
 	        ['Kansas', 'KS'],
-	        ['Kentucky', 'KY'],
 	        ['Kentucky', 'KY'],
 	        ['Louisiana', 'LA'],
 	        ['Maine', 'ME'],

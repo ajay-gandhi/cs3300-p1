@@ -84,24 +84,92 @@
 			<h4>Vehicle-Theft</h4>
 			<div id="map10"></div>
 		</div>
+
+    
+    <div class="mapContainer">
+      <h4>All Crimes</h4>
+      <div id="maptest"></div>
+    </div><br>
+    <div class="mapContainer">
+      <h4>Violent Crimes</h4>
+      <div id="maptest2"></div>
+    </div>
+    <div class="mapContainer">
+      <h4>Property Crimes</h4>
+      <div id="maptest3"></div>
+    </div>
 	</div>
 	
 
 	<script>
 
-	var width = 240,
-	height = 150;
 
+
+
+visualizeMap(800, 500, 800, "#maptest", "Index", ["#fee8c8","#e34a33"]);
+visualizeMap(400, 250, 400, "#maptest2", "Violent", ["white","black"]);
+visualizeMap(400, 250, 400, "#maptest3", "Property", ["white","black"]);
+
+
+
+function visualizeMap(svgWidth, svgHeight, projectionScale, divId, crime, colorRange){
+  var width = svgWidth,
+  height = svgHeight;
+
+  var projection = d3.geo.albersUsa()
+  .scale(projectionScale)
+  .translate([width / 2, height / 2]);
+
+  var path = d3.geo.path()
+  .projection(projection);
+
+
+  d3.json("us.json", function(error, us) {
+    if (error) return console.error(error);
+    var states = topojson.feature(us, us.objects.states).features;
+
+  //Map for Crime Index.
+  var svg1 = d3.select(divId).append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+  d3.json("data.json", function(error, data){
+
+    var statePaths = svg1.append('g');
+      var valueArray = []; //An array to store values to fine the min max in order to set the color scale
+      for (var i in data){
+        valueArray.push((data[i]["2013"][crime]*100000.0)/data[i]["2013"]["Population"]);         
+      }
+      var max = Math.max.apply(Math, valueArray);
+      var min = Math.min.apply(Math, valueArray);
+
+      var crimeScale = d3.scale.linear().domain([min, max]).range(colorRange);
+
+      statePaths.selectAll('path').data(states).enter()
+      .append('path').attr('d', path).attr("id", function(state) {return state.id})
+      .style('fill', function(state){
+
+        if (typeof data[stateid[state.id]] != 'undefined' && typeof data[stateid[state.id]]["2013"] != 'undefined'){
+          return crimeScale(data[stateid[state.id]]["2013"][crime]*100000.0/data[stateid[state.id]]["2013"]["Population"])}
+
+        })
+
+      .style('stroke', '#ccc');
+
+  });
+
+});
+};
+
+	var width = 440,
+	height = 250;
 
 	var projection = d3.geo.albersUsa()
-	.scale(240)
+	.scale(700)
 	.translate([width / 2, height / 2]);
 
 	var path = d3.geo.path()
 	.projection(projection);
-
-
-
 
 
 	d3.json("us.json", function(error, us) {
