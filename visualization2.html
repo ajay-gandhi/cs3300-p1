@@ -39,8 +39,8 @@
 
 	<script>
 	//specify crime typs
-	var possibleCrimes = ["Burglary", "Murder", "Property", "Rape", "Robbery", "Theft", "Violent", "assault"];
-	var crimeType = "Burglary";
+	var possibleCrimes = ["Index", "Burglary", "Murder", "Property", "Rape", "Robbery", "Theft", "Violent", "assault"];
+	var crimeType = "Property";
 	var crimeType2 = "Murder";
 
 	d3.json("data.json", function(error, data){
@@ -60,7 +60,7 @@
 		        	if ( abbrState( crimeData[i].key ,"name") == povertyData[j].state) {
 
 		            	obj.rate = povertyData[j].rate;
-		            	if (povertyData[j].state == "Florida"){
+		            	if (povertyData[j].state == "New York"){
 		        			console.log(povertyData[j].rate);
 		        		}
 		            	obj_poverty_processed[povertyData[j].state] = true;
@@ -96,7 +96,7 @@
 
 		//scales
 		var xScale = d3.scale.linear().domain([min, max]).range([padding, width - padding]);
-		var yScale = d3.scale.linear().domain([5, 26]).range([height - padding, padding]);
+		var yScale = d3.scale.linear().domain([0, 26]).range([height - padding, padding]);
 		var circleScale = d3.scale.sqrt().domain([0, max2]).range([0,30]);
 		var xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.format("d"));
 		var yAxis = d3.svg.axis().scale(yScale).orient("left");
@@ -111,9 +111,10 @@
 
 		//title
 		svg.append("text").text("2013 " + crimeType + " count per 100,000 of State population, compared to Poverty Rate (%)").attr("x",width/2).attr("y",30).attr("text-anchor","middle").attr("class","title");
+		svg.append("text").text("Circle size currently showing: " + crimeType2).attr("x",width/2).attr("y",60).attr("text-anchor","middle");
 
 		//axis
-		svg.append("text").text(crimeType + " per 100,000 of population").attr("x",width/2).attr("y",height - padding/6).attr("text-anchor","middle");
+		svg.append("text").text(crimeType + " per 100,000 of population").attr("x",width/2).attr("y",height - padding/2).attr("text-anchor","middle");
 		svg.append("text").text("Poverty Rate").attr("x",padding/2).attr("y",height/2).attr("text-anchor","middle");
 
 		var dataPoints = 
