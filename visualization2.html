@@ -15,7 +15,7 @@
 		.axis path,
 		.axis line {
 			fill: none;
-			stroke: black;
+			stroke: none;
 			shape-rendering: crispEdges;
 		}
 		.axis { 
@@ -134,9 +134,6 @@
 		.enter()
 		.append("g")
 		.attr("transform", function(d, i){
-			// if (d["key"] == "hi") {
-			// 	console.log("me!" );
-			// }
 			return "translate(" + xScale( (d.value[2013][crimeType] * 100000 )/ d.value[2013].Population ) + "," + 
 				yScale(d.rate)		
 				 + ")";
