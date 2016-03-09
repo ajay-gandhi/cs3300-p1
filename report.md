@@ -64,10 +64,14 @@ The most intuitive format to represent crime rates would be to create a
 choropleth of the United States and vary the value of each state's color based
 on its poverty percentage.
 
-We created a color scale, using a different hue for each category of crime
-(violent, property, etc.). This allowed us to represent each category distinctly
-over the same base layout. Additionally, we computed the minimum and maximum of
-each category to create a sufficiently varied choropleth each time.
+In order to depict the data we had in an orderly fashion, we created a hierarchy
+of choropleths. The topmost map depicted the crime index per state using a
+purple hue. Below, we separated the map into its two components - violent crime,
+depicted using red, and property crime, depicted using blue. Just as violent
+and property crime come together to define the crime index, red and blue come
+together to create purple. The last level depicted each specific category under
+its parent. Additionally, we computed the minimum and maximum of each category
+to create a sufficiently varied choropleth for each distribution.
 
 ## Crime and Poverty
 
